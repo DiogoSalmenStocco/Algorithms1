@@ -15,3 +15,9 @@ Implementação -> Codificação das operações (.c)
   - O código fica modularizado.
 
 ### TAD: String
+  - Código na pasta correspondente ao dia
+  - gcc String.c testString.c -o oi
+  - gcc -c String.c
+  - ls -al
+  - gcc String.o testString.c -o oi
+Executa sem main
