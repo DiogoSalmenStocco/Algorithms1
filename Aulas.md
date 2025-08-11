@@ -21,3 +21,5 @@ Implementação -> Codificação das operações (.c)
   - ls -al
   - gcc String.o testString.c -o oi
 Executa sem main
+## Aula 02 - 11/08
+###  TAD em C++ com Struct e sem Class (POO)
