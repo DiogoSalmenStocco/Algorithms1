@@ -23,3 +23,7 @@ Implementação -> Codificação das operações (.c)
 Executa sem main
 ## Aula 02 - 11/08
 ###  TAD em C++ com Struct e sem Class (POO)
+## Aula 03 - 14/08
+## Aula 04 - 18/08
+## Aula 05 - 21/08
+### Fila e Breadth-First Search - BFS
