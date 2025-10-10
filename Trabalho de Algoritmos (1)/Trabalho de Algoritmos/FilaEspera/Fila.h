@@ -19,8 +19,7 @@ typedef struct Fila_{
 
 Fila criar_Fila();
 void inserir_paciente_f(Fila* espera, paciente_f paciente_f);
-void remover_paciente_f(Fila* espera, paciente_f paciente_f);
-bool Fila_vazia(Fila f);
+paciente_f remover_paciente_f(Fila* espera); // Retorna o paciente removidobool Fila_vazia(Fila f);
 bool Fila_cheia(Fila f);
 
 paciente_f buscar_paciente_fila(Fila* fila, paciente_f p);

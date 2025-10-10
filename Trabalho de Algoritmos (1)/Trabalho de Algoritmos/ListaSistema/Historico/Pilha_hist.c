@@ -16,10 +16,12 @@ historico* criar_historico(){
 void inserir_procedimento(historico *h, char procedimento[100],int id){
   if(h->topo < 9){
     h->topo++;
+    // Copia o procedimento para a pilha na memoria
     strcpy(h->procedimento[h->topo], procedimento);
-    // Salvar procedimento em arquivo
+    
+    // Salva o procedimento no arquivo do paciente, usando o ID correto
     char filename[256];
-    sprintf(filename, "historico_%d.txt", h->topo); // Nome do arquivo baseado no id do paciente
+    sprintf(filename, "historico_%d.txt", id); // Correcao: usar o ID do paciente de forma consistente
     FILE *file = fopen(filename, "a");
     if (file != NULL) {
         fprintf(file, "%s\n", procedimento);
@@ -28,25 +30,29 @@ void inserir_procedimento(historico *h, char procedimento[100],int id){
         printf("Erro ao abrir o arquivo %s para escrita.\n", filename);
     }
   } else {
-    printf("Historico cheio! Não é possivel inserir mais procedimentos.\n");
+    printf("Historico cheio! Nao e possivel inserir mais procedimentos.\n");
   }
 }
 historico* abrir_historico(int id){
   char filename[256];  
-  sprintf(filename, "%d.txt", id); // Nome do arquivo baseado no id do paciente  
+  sprintf(filename, "historico_%d.txt", id); // Correcao: usar o prefixo consistente
   FILE *file = fopen(filename, "r");
   if (file == NULL) {
-      printf("Erro ao abrir o arquivo.\n");
+      // Se nao houver arquivo, retorna NULL
       return NULL;
   }
-  historico* historico = criar_historico();
+  historico* h = criar_historico();
   char procedimento[100];
   while (fgets(procedimento, sizeof(procedimento), file)) {
       procedimento[strcspn(procedimento, "\n")] = 0; 
-      inserir_procedimento(historico, procedimento, id);
-}
-fclose(file);
-return historico;
+      // Carrega para a struct na memoria, nao insere no arquivo novamente
+      if (h->topo < 9) {
+          h->topo++;
+          strcpy(h->procedimento[h->topo], procedimento);
+      }
+  }
+  fclose(file);
+  return h;
 }
 bool historico_vazio(historico *h){
   if (h->topo == -1){
@@ -58,8 +64,9 @@ bool historico_vazio(historico *h){
 void desfazer_procedimento(historico *h){
   if(h->topo >= 0){
     h->topo--;
+    printf("Ultimo procedimento desfeito na memoria (topo=%d).\n", h->topo);
   } else if(historico_vazio(h)){
-    printf("Historico vazio! Não é possivel desfazer procedimentos.\n");
+    printf("Historico vazio! Nao e possivel desfazer procedimentos.\n");
   }
 }
 bool historico_cheio(historico *h){
@@ -70,14 +77,15 @@ bool historico_cheio(historico *h){
   } 
 }
 void consultar_procedimentos(int id){
-  historico* historico = abrir_historico(id);
-  if (historico == NULL) {
+  historico* h = abrir_historico(id);
+  if (h == NULL) {
       printf("Nenhum historico encontrado para o ID %d.\n", id);
-      return NULL;
+      return; 
   }
   printf("Procedimentos do paciente com ID %d:\n", id);
-  for (int i = 0; i <= historico->topo; i++) {
-      printf("%s\n", historico->procedimento[i]);
+  for (int i = 0; i <= h->topo; i++) {
+      printf("%s\n", h->procedimento[i]);
   }
-return historico;
+  // Libera a memoria alocada para o historico apos a consulta
+  free(h); 
 }

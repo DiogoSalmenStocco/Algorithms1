@@ -1,21 +1,43 @@
-all: Fila.o Lista.o Pilha_hist.o atendimento.o
-	gcc Fila.o Lista.o Pilha_hist.o atendimento.o -o at
+# O nome do executavel final
+TARGET = at
 
-Fila.o:
-	gcc -c Fila.o
+# Arquivos objeto que serao gerados
+OBJS = Fila.o Lista.o Pilha_hist.o atendimento.o IO1.o
 
-Lista.o:
-	gcc -c Lista.o
+# Compilador
+CC = gcc
+CFLAGS = -Wall -g -std=c11
 
-Pilha_hist.o:
-	gcc -c Pilha_hist.o
+# Caminhos base (Ajuste se o caminho for diferente)
+BASE_DIR = Trabalho\ de\ Algoritmos\ \(1\)/Trabalho\ de\ Algoritmos
 
-atendimento.o:
-	gcc -c atendimento.o
+# Regra principal: compilar todos os objetos e linkar
+all: $(TARGET)
 
-run:
-	./at
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
 
+# Regras de Compilacao para cada arquivo objeto (.c -> .o)
+# Uso de $< (primeiro pre-requisito) e $@ (nome do alvo)
+Fila.o: $(BASE_DIR)/FilaEspera/Fila.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+Lista.o: $(BASE_DIR)/ListaSistema/Lista.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+Pilha_hist.o: $(BASE_DIR)/ListaSistema/Historico/Pilha_hist.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+atendimento.o: $(BASE_DIR)/atendimento.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+IO1.o: $(BASE_DIR)/SaveLoad/IO1.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Regra para executar
+run: $(TARGET)
+	./$(TARGET)
+
+# Regra para limpar
 clean:
-	rm *.o
-	rm at
+	rm -f $(OBJS) $(TARGET) registros.txt fila_espera.txt historico_*.txt

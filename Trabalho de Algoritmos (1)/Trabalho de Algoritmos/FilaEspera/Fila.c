@@ -36,16 +36,29 @@ void inserir_paciente_f(Fila* fila, paciente_f p)
     return;
 }
 
-void remover_paciente_f(Fila* fila, paciente_f p)
+paciente_f remover_paciente_f(Fila* fila) // Retorna o paciente removido
 {
-    if (Fila_vazia(*fila))
-        return;
-
+    paciente_f paciente_removido = {-1, ""}; // Struct de erro
+    
+    if (Fila_vazia(*fila)) {
+        return paciente_removido;
+    }
+    
+    // Pega o paciente no inicio
+    paciente_removido = fila->paciente[fila->inicio];
+    
+    // Atualiza o inicio
     fila->inicio = (fila->inicio + 1) % fila->capacidade;
     fila->tamanho--;
+
+    // Se a fila esvaziou, reseta os indices
+    if (fila->tamanho == 0) {
+        fila->inicio = -1;
+        fila->fim = -1;
+    }
     
-    printf("\nPaciente %s com ID %d inserido na fila de emergência.\n", p.nome, p.id);  
-    return ;
+    printf("\nPaciente %s com ID %d removido da Fila de emergencia para atendimento.\n", paciente_removido.nome, paciente_removido.id);  
+    return paciente_removido;
 }
 
 paciente_f buscar_paciente_fila(Fila* fila, paciente_f p)
