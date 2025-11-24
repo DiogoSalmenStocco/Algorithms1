@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h> 
 #include "Lista.h"
-#include "Pilha_hist.h"
+#include "Historico/Pilha_hist.h"
 
 // Funcao auxiliar para liberar a memoria de um paciente_h (nome e historico)
 void liberar_paciente(paciente_h* p) {

@@ -16,7 +16,7 @@ historico* criar_historico();
 historico* abrir_historico(int id);
 void consultar_procedimentos(int id);
 void inserir_procedimento(historico *h, char procedimento[100], int id);
-void desfazer_procedimento(historico *h);
+void desfazer_procedimento(historico *h, int id);
 bool historico_vazio(historico *h);
 bool historico_cheio(historico *h);
 

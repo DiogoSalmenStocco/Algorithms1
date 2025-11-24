@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "Pilha_hist.h"
+#include "Historico/Pilha_hist.h"
 
 typedef struct noh
 {

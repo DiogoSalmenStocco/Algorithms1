@@ -4,6 +4,21 @@
 #include <string.h>
 #include "Pilha_hist.h"
 
+void reescrever_historico_disco(historico *h, int id) {
+    char filename[256];
+    sprintf(filename, "historico_%d.txt", id);
+    FILE *file = fopen(filename, "w"); // Usamos "w" para SOBRESCREVER o arquivo
+    if (file != NULL) {
+        // Escreve apenas os procedimentos que ainda estao na pilha (de 0 ate o novo topo)
+        for (int i = 0; i <= h->topo; i++) { 
+            fprintf(file, "%s\n", h->procedimento[i]);
+        }
+        fclose(file);
+    } else {
+        printf("Erro ao reescrever o arquivo de historico %s.\n", filename);
+    }
+}
+
 historico* criar_historico(){
   historico* h = (historico*) malloc(sizeof(historico));
   if(h == NULL){
@@ -61,10 +76,11 @@ bool historico_vazio(historico *h){
     return false;
   }
 }
-void desfazer_procedimento(historico *h){
+void desfazer_procedimento(historico *h, int id){
   if(h->topo >= 0){
     h->topo--;
     printf("Ultimo procedimento desfeito na memoria (topo=%d).\n", h->topo);
+    reescrever_historico_disco(h, id); // <--- CORREÇÃO: Atualiza o arquivo
   } else if(historico_vazio(h)){
     printf("Historico vazio! Nao e possivel desfazer procedimentos.\n");
   }
