@@ -1,5 +1,5 @@
-#ifndef Heap.h
-#define Heap.h
+#ifndef HEAP_H // Use HEAP_H
+#define HEAP_H // Não use o ponto (.), use um nome de macro padrão
 #define tam_max_heap 50
 
 #include "../ListaSistema/Lista.h"

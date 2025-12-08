@@ -102,7 +102,7 @@ HEAP* copia_heap(HEAP* original) {
     return copia;
 }
 
-void imprime_ordenado(HEAP* heap) {
+void imprimir_ordenado(HEAP* heap) {
     HEAP* copia = copia_heap(heap);
     if (copia == NULL) {
         printf("Erro ao copiar o heap para impressao.\n");
