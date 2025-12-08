@@ -1,4 +1,4 @@
-#include "FilaEspera/Fila.h"
+
 #include "ListaSistema/Lista.h"
 #include "ListaSistema/Historico/Pilha_hist.h"
 #include "SaveLoad/IO1.h" // Inclui as funcoes SAVE/LOAD
@@ -8,8 +8,10 @@
 #include <string.h> // Necessario para strdup
 #include <unistd.h> // Para a funcao remove() (remover arquivo)
 
+#include <heap.h>
+
 // Funcao auxiliar para obter paciente da fila e move-lo para a lista
-void chamar_paciente(Lista* lista_sistema, Fila* fila_espera) {
+void chamar_paciente(Lista* lista_sistema, Fila* fila_espera) { //////////////////////////////////////////////////////////////////////////
     if (Fila_vazia(*fila_espera)) {
         printf("Nao ha pacientes na fila de espera para chamar.\n");
         return;
@@ -37,18 +39,46 @@ void chamar_paciente(Lista* lista_sistema, Fila* fila_espera) {
     if (paciente_atendido.nome) free(paciente_atendido.nome);
 }
 
+void chamar_paciente(Lista* lista_sistema, HEAP* Hfila_espera) { //////////////////////////////////////////////////////////////////////////
+    if (vazia(Hfila_espera)) {
+        printf("Nao ha pacientes na fila de espera para chamar.\n");
+        return;
+    }
+    
+    // Remove o paciente mais antigo da fila
+    NOH_HEAP paciente_atendido = remover_heap(Hfila_espera);
+    
+    // Verifica se ja esta na lista principal. Se nao estiver, insere.
+    NOH_HEAP* existente = buscar_paciente_noh(lista_sistema, paciente_atendido.paciente->id);
+    
+    if (existente == NULL) {
+        // Assume que o nome em paciente_f e um ponteiro alocado com strdup em case 1.
+        bool inserido = inserir_heap(lista_sistema, paciente_atendido.paciente->nome, paciente_atendido.paciente->id); // Inserindo no fim para consistencia
+        if (inserido) {
+            printf("Paciente %s (ID %d) registrado na Lista de Atendimentos.\n", paciente_atendido.paciente->nome, paciente_atendido.paciente->id);
+        } else {
+            printf("Erro ao registrar paciente na Lista de Atendimentos.\n");
+        }
+    } else {
+        printf("Paciente %s (ID %d) ja estava registrado, apenas removido da Fila de espera.\n", paciente_atendido.paciente->nome, paciente_atendido.paciente->id);
+    }
+    
+    // Libera a memoria do nome que foi alocado para o paciente na fila
+    if (paciente_atendido.paciente->nome) free(paciente_atendido.paciente->nome);
+}
+
 int main(){
-  int operacao = 0, id = 0;
+  int operacao = 0, id = 0, prioridade = 0;
   char nome_input[100]; 
   
   // Estruturas centrais
   Lista lista_sistema;
   inicializar(&lista_sistema); // Inicializa a lista principal
   
-  Fila espera = criar_Fila(); // Inicializa a fila
+  HEAP* espera = criar_heap(); // Inicializa a fila //////////////////////////////////////////////////////////////////////////
 
   // Implementacao do LOAD (Carrega os dados ao iniciar)
-  LOAD(&lista_sistema, NULL, &espera); 
+  LOAD(&lista_sistema, NULL, espera);  //////////////////////////////////////////////////////////////////////////
 
   do
   {
@@ -80,6 +110,8 @@ int main(){
       scanf("%s", nome_input); 
       printf("Digite o id do paciente: ");
       scanf("%d", &id);
+      printf("Digite o nível de prioridade do paciente: ");
+      scanf("%d", &prioridade);
 
       // 1. VALIDACAO: Checar se o ID ja esta na Lista Principal (pacientes registrados)
       paciente_h* paciente_existente_lista = buscar_paciente_noh(&lista_sistema, id);
@@ -89,16 +121,13 @@ int main(){
       }
       
       // 2. VALIDACAO: Checar se o ID ja esta na Fila de Espera
-      paciente_f p_temp = {"", id}; 
-      paciente_f paciente_existente_fila = buscar_paciente_fila(&espera, p_temp);
-      // A função buscar_paciente_fila retorna id = -1 se não encontrar
-      if (paciente_existente_fila.id != -1) {
-          printf("\nERRO: Paciente com ID %d ja se encontra na fila de espera (%s).\n", id, paciente_existente_fila.nome);
+      if (buscar_heap(&espera, id) == true) {
+          printf("\nERRO: Paciente com ID %d ja se encontra na fila de espera.\n", id);
           break;
       }
       
       // --- Se o ID e unico, prossegue com a inserção ---
-      paciente_f novo_paciente;
+      paciente_h novo_paciente;
       // Aloca e copia o nome para a struct da fila
       novo_paciente.nome = strdup(nome_input); 
       if (novo_paciente.nome == NULL) {
@@ -107,7 +136,7 @@ int main(){
       }
       novo_paciente.id = id;
       
-      inserir_paciente_f(&espera, novo_paciente);
+      inserir_heap(&espera, &novo_paciente, prioridade); //////////////////////////////////////////////////////////////////////////
       break;
     }
 
@@ -172,19 +201,19 @@ int main(){
       break;
 
     case 6: //Mostrar fila de espera
-      mostrar_todos_f(&espera);
+      imprimir_ordenado(&espera); //////////////////////////////////////////////////////////////////////////
       break;
 
     case 7: //Mostrar historico do paciente
       printf("Digite o id do paciente: ");
-      scanf("%d", &id);
+      scanf("%d", &id); 
       
       consultar_procedimentos(id); 
       break;
 
     case 8: //Sair
       // Implementacao do SAVE (Salva os dados antes de sair)
-      SAVE(&lista_sistema, NULL, &espera);
+      SAVE(&lista_sistema, NULL, &espera); //////////////////////////////////////////////////////////////////////////
       printf("Saindo do sistema. Dados salvos.\n");
       break;
 

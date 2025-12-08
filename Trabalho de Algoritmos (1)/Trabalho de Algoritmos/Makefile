@@ -19,7 +19,7 @@ $(TARGET): $(OBJS)
 # Regras de Compilacao para cada arquivo objeto (.c -> .o)
 # Os caminhos agora sao relativos a este diretorio (Trabalho de Algoritmos)
 
-Fila.o: FilaEspera/Fila.c
+Fila.o: FilaEspera/heap.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 Lista.o: ListaSistema/Lista.c

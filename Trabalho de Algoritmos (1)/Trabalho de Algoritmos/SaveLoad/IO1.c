@@ -5,7 +5,7 @@
 #include <string.h>
 
 // Salva a lista de pacientes (registros.txt) e a fila de espera (fila_espera.txt)
-bool SAVE(Lista* lista , historico* pilha, Fila* fila){
+bool SAVE(Lista* lista , historico* pilha, HEAP* fila){
     if (!lista) return false;
 
     // 1. Salvando a Lista de Pacientes (Sistema Principal)
@@ -40,10 +40,10 @@ bool SAVE(Lista* lista , historico* pilha, Fila* fila){
     if (fila) {
         FILE *file_fila = fopen("fila_espera.txt", "w");
         if (file_fila) {
-            for(int i = 0; i < fila->tamanho; i++){
-                int index = (fila->inicio + i) % fila->capacidade;
+            for(int i = 0; i < fila->tam_atual; i++){
+                int index = (fila->pacienteH + i);
                 // Salva ID e Nome dos pacientes na fila
-                fprintf(file_fila, "FILA,%d,%s\n", fila->paciente[index].id, fila->paciente[index].nome ? fila->paciente[index].nome : "");
+                fprintf(file_fila, "FILA,%d, %d, %s\n", fila->pacienteH[index].paciente->id, fila->pacienteH[index].prioridade, fila->pacienteH[index].paciente->nome ? fila->pacienteH[index].paciente->nome : "");
             }
             fclose(file_fila);
         }
@@ -53,7 +53,7 @@ bool SAVE(Lista* lista , historico* pilha, Fila* fila){
 }
 
 // Carrega os dados salvos nos arquivos para as estruturas de dados
-bool LOAD(Lista* lista , historico* pilha, Fila* fila){
+bool LOAD(Lista* lista , historico* pilha, HEAP* fila){
     
     // 1. Carregando a Lista de Pacientes (Sistema Principal)
     FILE *file_lista = fopen("registros.txt", "r");
@@ -65,11 +65,12 @@ bool LOAD(Lista* lista , historico* pilha, Fila* fila){
     char linha[256];
     char tipo[10], nome[100];
     int id;
+    int prio;
 
     // Le linha por linha (PACIENTE,ID,NOME)
     while (fgets(linha, sizeof(linha), file_lista)) {
         // Usa sscanf para extrair os campos
-        if (sscanf(linha, "%9[^,],%d,%99[^\n]", tipo, &id, nome) == 3) {
+        if (sscanf(linha, "%9[^,],%d,%d,%99[^\n]", tipo, &id, nome) == 3) {
             if (strcmp(tipo, "PACIENTE") == 0) {
                 // Insere o paciente na lista principal (assume que a insercao no final e mais rapida)
                 bool inserido = inserir_paciente_fim(lista, nome, id);
@@ -99,16 +100,16 @@ bool LOAD(Lista* lista , historico* pilha, Fila* fila){
         if (file_fila) {
             while (fgets(linha, sizeof(linha), file_fila)) {
                 // Le linha por linha (FILA,ID,NOME)
-                if (sscanf(linha, "FILA,%d,%99[^\n]", &id, nome) == 2) {
+                if (sscanf(linha, "FILA,%d,%d,%99[^\n]", &id, &prio, &nome) == 2) {
                     
-                    paciente_f p;
-                    p.id = id;
+                    NOH_HEAP p;
+                    p.paciente->id = id;
                     // Aloca e copia o nome
-                    p.nome = strdup(nome); 
-                    if (p.nome == NULL) continue;
+                    p.paciente->nome = strdup(nome); 
+                    if (p.paciente->nome == NULL) continue;
                     
                     // Insere na fila de espera
-                    inserir_paciente_f(fila, p); 
+                    inserir_heap(fila, p.paciente, prio); 
                 }
             }
             fclose(file_fila);
